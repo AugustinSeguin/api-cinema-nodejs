@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { Actor, Movie } from "..";
-import { MovieActorModel } from "..";
+import { Actor, Movie , MovieActorModel}  from "..";
 
 export const movieRouter = Router();
 
