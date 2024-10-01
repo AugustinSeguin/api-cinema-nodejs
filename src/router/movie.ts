@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { Movie } from "..";
+import { Actor, Movie } from "..";
+import { MovieActorModel } from "..";
 
 export const movieRouter = Router();
 
@@ -9,7 +10,10 @@ movieRouter.get("/", async (req, res) => {
 });
 
 movieRouter.get("/:id", async (req, res) => {
-    const movie = await Movie.findOne({ where: { id: req.params.id } });
+    const movie = await Movie.findOne({
+        where: { id: req.params.id },
+        include: Actor,
+    });
     if (movie) {
         res.json(movie);
     }
@@ -20,7 +24,7 @@ movieRouter.get("/:id", async (req, res) => {
 
 movieRouter.post("/", async (req, res) => {
     const { title, description, releaseDate, director } = req.body;
-    if(!title){
+    if (!title) {
         res.status(400).send("Missing required information: title");
     }
     else {
@@ -52,3 +56,27 @@ movieRouter.delete("/:id", async (req, res) => {
     }
 });
 
+movieRouter.post("/:movieId/actors/:actorId", async (req, res) => {
+    const { movieId, actorId } = req.body;
+    const movieActor = await MovieActorModel.findOne({ where: { movieId: movieId, actorId: actorId } });
+
+    if (movieActor) {
+        res.status(400).send("Actor already in movie");
+    }
+    else {
+        const newMovie = await MovieActorModel.create({ movieId, actorId });
+        res.json(newMovie);
+    }
+});
+
+movieRouter.delete("/:movieId/actors/:actorId", async (req, res) => {
+    const movieActor = await MovieActorModel.findOne({ where: { movieId: req.params.movieId, actorId: req.params.actorId } });
+
+    if (movieActor) {
+        await movieActor.destroy();
+        res.json("deleted");
+    }
+    else {
+        res.status(404).send("Movie actor not found");
+    }
+});

@@ -6,6 +6,8 @@ import { Sequelize, DataTypes } from "sequelize";
 import { MovieModel } from "./model/Movie";
 import { ActorModel } from "./model/Actor";
 import { UserModel } from "./model/User";
+import { MovieActor } from "./model/MovieActor";
+
 
 import { actorRouter } from "./router/actor";
 import { movieRouter } from "./router/movie";
@@ -22,6 +24,10 @@ export const Movie = MovieModel(sequelize);
 export const Actor = ActorModel(sequelize);
 export const User = UserModel(sequelize);
 export const TokenBlackList = TokenBlackListModel(sequelize);
+export const MovieActorModel = MovieActor(sequelize);
+
+Movie.belongsToMany(Actor, { through: MovieActorModel });
+Actor.belongsToMany(Movie, { through: MovieActorModel });
 
 // sequelize.sync({ force: true });
 sequelize.sync();

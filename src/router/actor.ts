@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Actor } from "..";
+import { Actor, Movie } from "..";
 import { checkToken } from "../middlewares/checkToken";
 
 export const actorRouter = Router();
@@ -10,7 +10,10 @@ actorRouter.get("/", checkToken, async (req, res) => {
 });
 
 actorRouter.get("/:id", checkToken, async (req, res) => {
-    const actor = await Actor.findOne({ where: { id: req.params.id } });
+    const actor = await Actor.findOne({
+        where: { id: req.params.id },
+        include: Movie,
+    });
     if (actor) {
         res.json(actor);
     }
@@ -20,12 +23,12 @@ actorRouter.get("/:id", checkToken, async (req, res) => {
 });
 
 actorRouter.post("/", checkToken, async (req, res) => {
-    const { firstname, lastname, email } = req.body.data;
-    if(!firstname || !lastname){
+    const { firstname, lastname, email } = req.body;
+    if (!firstname || !lastname) {
         res.status(400).send("Missing required information: firstname or lastname");
     }
     else {
-        const newActor = await Actor.create({ firstname, lastname, email  });
+        const newActor = await Actor.create({ firstname, lastname, email });
         res.json(newActor);
     }
 });
@@ -33,8 +36,9 @@ actorRouter.post("/", checkToken, async (req, res) => {
 actorRouter.put("/:id", checkToken, async (req, res) => {
     const { firstname, lastname, email } = req.body;
     const actual = await Actor.findOne({ where: { id: req.params.id } });
-    if (actual) {Actor
-        const newActor = await actual.update({ firstname, lastname, email  });
+    if (actual) {
+        Actor
+        const newActor = await actual.update({ firstname, lastname, email });
         res.json(newActor);
     }
     else {
